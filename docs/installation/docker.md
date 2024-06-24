@@ -1,3 +1,5 @@
+([简体中文](./docker_zh.md)|English)
+
 # Docker
 
 ## Install Docker
@@ -32,13 +34,14 @@ sudo systemctl start docker
 ```
 ## Download image
 
-### Image
+### Image Hub
+
 #### CPU
-`registry.cn-hangzhou.aliyuncs.com/modelscope-repo/modelscope:ubuntu20.04-py37-torch1.11.0-tf1.15.5-1.5.0`
+`registry.cn-hangzhou.aliyuncs.com/funasr_repo/funasr:funasr-runtime-sdk-cpu-0.4.1`
 
 #### GPU
 
-`registry.cn-hangzhou.aliyuncs.com/modelscope-repo/modelscope:ubuntu20.04-cuda11.3.0-py37-torch1.11.0-tf1.15.5-1.5.0`
+`registry.cn-hangzhou.aliyuncs.com/modelscope-repo/modelscope:ubuntu20.04-py38-torch1.11.0-tf1.15.5-1.8.1`
 
 ### Pull Image
 ```shell
@@ -52,8 +55,12 @@ sudo docker images
 
 ## Run Docker
 ```shell
-sudo docker run -itd --name funasr <image-name>:<tag> bash
-sudo docker exec -it funasr bash
+# cpu
+sudo docker run -itd --name funasr -v <local_dir:dir_in_docker> <image-name>:<tag> /bin/bash
+# gpu
+sudo docker run -itd --gpus all --name funasr -v <local_dir:dir_in_docker> <image-name>:<tag> /bin/bash
+
+sudo docker exec -it funasr /bin/bash
 ```
 
 ## Stop Docker

@@ -8,21 +8,19 @@ from typing import Optional, List
 
 import torch
 from torch.optim.lr_scheduler import _LRScheduler
-from typeguard import check_argument_types
 
 from funasr.schedulers.abs_scheduler import AbsBatchStepScheduler
 
 
 class TriStageLR(_LRScheduler, AbsBatchStepScheduler):
     def __init__(
-            self,
-            optimizer: torch.optim.Optimizer,
-            last_epoch: int = -1,
-            phase_ratio: Optional[List[float]] = None,
-            init_lr_scale: float = 0.01,
-            final_lr_scale: float = 0.01,
+        self,
+        optimizer: torch.optim.Optimizer,
+        last_epoch: int = -1,
+        phase_ratio: Optional[List[float]] = None,
+        init_lr_scale: float = 0.01,
+        final_lr_scale: float = 0.01,
     ):
-        assert check_argument_types()
         self.optimizer = optimizer
         self.last_epoch = last_epoch
         self.phase_ratio = phase_ratio
@@ -44,9 +42,7 @@ class TriStageLR(_LRScheduler, AbsBatchStepScheduler):
         self.decay_steps = int(self.max_update * self.phase_ratio[2])
 
         self.warmup_rate = (
-            (self.peak_lr - self.init_lr) / self.warmup_steps
-            if self.warmup_steps != 0
-            else 0
+            (self.peak_lr - self.init_lr) / self.warmup_steps if self.warmup_steps != 0 else 0
         )
         self.decay_factor = -math.log(self.final_lr_scale) / self.decay_steps
 

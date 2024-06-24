@@ -4,84 +4,59 @@
 
 import os
 
-from distutils.version import LooseVersion
 from setuptools import find_packages
 from setuptools import setup
 
 
 requirements = {
     "install": [
-        "setuptools>=38.5.1",
-        # "configargparse>=1.2.1",
-        "typeguard==2.13.3",
-        "humanfriendly",
         "scipy>=1.4.1",
-        # "filelock",
-        "librosa==0.8.1",
-        "jamo==0.4.1",  # For kss
+        "librosa",
+        "jamo",  # For kss
         "PyYAML>=5.1.2",
-        "soundfile>=0.10.2",
-        "h5py>=2.10.0",
+        "soundfile>=0.12.1",
         "kaldiio>=2.17.0",
         "torch_complex",
-        "nltk>=3.4.5",
-        # ASR
-        "sentencepiece",
-        # "ctc-segmentation<1.8,>=1.6.6",
-        # TTS
-        # "pyworld>=0.2.10",
-        "pypinyin<=0.44.0",
-        "espnet_tts_frontend",
+        # "nltk>=3.4.5",
+        "sentencepiece",  # train
+        "jieba",
+        "rotary_embedding_torch",
+        # "ffmpeg-python",
+        # "pypinyin>=0.44.0",
+        # "espnet_tts_frontend",
         # ENH
-        # "ci_sdr",
         "pytorch_wpe",
-        "editdistance==0.5.2",
-        "tensorboard==1.15",
-        "g2p",
+        "editdistance>=0.5.2",
+        # "g2p",
+        # "nara_wpe",
         # PAI
         "oss2",
-        # "kaldi-native-fbank",
-        # timestamp
-        "edit-distance",
-        # textgrid
-        "textgrid",
-        "protobuf==3.20.0",
+        # "edit-distance",
+        # "textgrid",
+        # "protobuf",
+        "tqdm",
+        "umap_learn",
+        "jaconv",
+        "hydra-core>=1.3.2",
+        "tensorboardX",
+        # "rotary_embedding_torch",
+        "openai-whisper",
     ],
     # train: The modules invoked when training only.
     "train": [
-        # "pillow>=6.1.0",
-        "editdistance==0.5.2",
-        "wandb",
-    ],
-    # recipe: The modules actually are not invoked in the main module of funasr,
-    #         but are invoked for the python scripts in each recipe
-    "recipe": [
-        "espnet_model_zoo",
-        # "gdown",
-        # "resampy",
-        # "pysptk>=0.1.17",
-        # "morfessor",  # for zeroth-korean
-        # "youtube_dl",  # for laborotv
-        # "nnmnkwii",
-        # "museval>=0.2.1",
-        # "pystoi>=0.2.2",
-        # "mir-eval>=0.6",
-        # "fastdtw",
-        # "nara_wpe>=0.0.5",
-        # "sacrebleu>=1.5.1",
+        "editdistance",
     ],
     # all: The modules should be optionally installled due to some reason.
     #      Please consider moving them to "install" occasionally
-    # NOTE(kamo): The modules in "train" and "recipe" are appended into "all"
     "all": [
         # NOTE(kamo): Append modules requiring specific pytorch version or torch>1.3.0
         "torch_optimizer",
         "fairscale",
         "transformers",
-        # "gtn==0.0.0",
+        "openai-whisper",
     ],
     "setup": [
-        "numpy<=1.21.3",
+        "numpy",
         "pytest-runner",
     ],
     "test": [
@@ -98,25 +73,36 @@ requirements = {
         "black",
     ],
     "doc": [
-        "Jinja2<3.1",
-        "Sphinx==2.1.2",
+        "Jinja2",
+        "Sphinx",
         "sphinx-rtd-theme>=0.2.4",
         "sphinx-argparse>=0.2.5",
-        "commonmark==0.8.1",
+        "commonmark",
         "recommonmark>=0.4.0",
         "nbsphinx>=0.4.2",
         "sphinx-markdown-tables>=0.0.12",
+        "configargparse>=1.2.1",
+    ],
+    "llm": [
+        "transformers>=4.32.0",
+        "accelerate",
+        "tiktoken",
+        "einops",
+        "transformers_stream_generator>=0.0.4",
+        "scipy",
+        "torchvision",
+        "pillow",
+        "matplotlib",
     ],
 }
-requirements["all"].extend(requirements["train"] + requirements["recipe"])
+requirements["all"].extend(requirements["train"])
+requirements["all"].extend(requirements["llm"])
 requirements["test"].extend(requirements["train"])
 
 install_requires = requirements["install"]
 setup_requires = requirements["setup"]
 tests_require = requirements["test"]
-extras_require = {
-    k: v for k, v in requirements.items() if k not in ["install", "setup"]
-}
+extras_require = {k: v for k, v in requirements.items() if k not in ["install", "setup"]}
 
 dirname = os.path.dirname(__file__)
 version_file = os.path.join(dirname, "funasr", "version.txt")
@@ -126,7 +112,7 @@ setup(
     name="funasr",
     version=version,
     url="https://github.com/alibaba-damo-academy/FunASR.git",
-    author="Speech Lab of DAMO Academy, Alibaba Group",
+    author="Speech Lab of Alibaba Group",
     author_email="funasr@list.alibaba-inc.com",
     description="FunASR: A Fundamental End-to-End Speech Recognition Toolkit",
     long_description=open(os.path.join(dirname, "README.md"), encoding="utf-8").read(),
@@ -151,4 +137,15 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    entry_points={
+        "console_scripts": [
+            "funasr = funasr.bin.inference:main_hydra",
+            "funasr-train = funasr.bin.train:main_hydra",
+            "funasr-export = funasr.bin.export:main_hydra",
+            "scp2jsonl = funasr.datasets.audio_datasets.scp2jsonl:main_hydra",
+            "jsonl2scp = funasr.datasets.audio_datasets.jsonl2scp:main_hydra",
+            "funasr-scp2jsonl = funasr.datasets.audio_datasets.scp2jsonl:main_hydra",
+            "funasr-jsonl2scp = funasr.datasets.audio_datasets.jsonl2scp:main_hydra",
+        ]
+    },
 )
